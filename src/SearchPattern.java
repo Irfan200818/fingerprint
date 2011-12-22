@@ -18,7 +18,8 @@ public class SearchPattern {
 	public void calculateDeltaValues(){
 		this.evalDesignatedOrigin();
 		
-		//TODO:
+		//TODO: new DeltaInformation object
+		
 //		for (Minutia m : this.minutiae) {
 //			m.calculateDeltaDistance(this.designatedOrigin.getPosition());
 //			m.calculateDeltaAngle(this.designatedOrigin);
