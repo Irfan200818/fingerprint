@@ -1,13 +1,20 @@
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 public class SearchPattern {
 	
-	private ArrayList<Minutia> minutiae = new ArrayList<Minutia>();
+	private ArrayList<Minutia> minutiae;
+	private Map<Minutia,Double> deltaDistances;
+	private Map<Minutia,Integer> deltaAngles;
 	private Minutia designatedOrigin;
 	private Position centerPoint;
 	
 	public SearchPattern(Position center){
+		this.minutiae = new ArrayList<Minutia>();
+		this.deltaDistances = new TreeMap<Minutia, Double>();
+		this.deltaAngles = new TreeMap<Minutia, Integer>();
 		this.centerPoint = center;
 	}
 	
@@ -16,14 +23,23 @@ public class SearchPattern {
 	}
 	
 	public void calculateDeltaValues(){
+		double deltaDistance;
+		int deltaAngle;
 		this.evalDesignatedOrigin();
 		
 		//TODO: new DeltaInformation object
+		for (Minutia m : this.minutiae) {
+			deltaDistance = m.calculateDeltaDistance(this.designatedOrigin.getPosition());
+			this.deltaDistances.put(m, deltaDistance);
+			deltaAngle = m.calculateDeltaAngle(this.designatedOrigin);
+			this.deltaAngles.put(m, deltaAngle);
+		}
 		
-//		for (Minutia m : this.minutiae) {
-//			m.calculateDeltaDistance(this.designatedOrigin.getPosition());
-//			m.calculateDeltaAngle(this.designatedOrigin);
-//		}
+		for (Minutia key : this.deltaDistances.keySet()) {
+            System.out.println("key/value: " + key + "/"+this.deltaDistances.get(key));
+        }
+
+		
 	}
 	
 	private void evalDesignatedOrigin(){
