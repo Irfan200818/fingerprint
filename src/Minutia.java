@@ -8,8 +8,8 @@ public class Minutia {
 	private Position position;
 
 	
-	public Minutia(int minIndex) {
-		this.index = minIndex;
+	public Minutia(int index) {
+		this.index = index;
 		this.position = new Position();
 	}
 	
@@ -22,7 +22,7 @@ public class Minutia {
 //		this.setMinQuality(minQuality);
 //	}
 
-	public int getMinIndex() {
+	public int getIndex() {
 		return this.index;
 	}
 
@@ -55,11 +55,11 @@ public class Minutia {
 		this.angle = angle;
 	}
 
-	public int getMinQuality() {
+	public int getQuality() {
 		return this.quality;
 	}
 
-	public void setMinQuality(int minQuality) {
+	public void setQuality(int minQuality) {
 		this.quality = minQuality;
 	}
 	
