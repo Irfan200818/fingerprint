@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -6,15 +7,13 @@ import java.util.TreeMap;
 public class SearchPattern {
 	
 	private ArrayList<Minutia> minutiae;
-	private Map<Double,Minutia> deltaDistances;
-	private Map<Minutia,Integer> deltaAngles;
+	private Map<Minutia, DeltaInformation> deltaValues;
 	private Minutia designatedOrigin;
 	private Position centerPoint;
 	
 	public SearchPattern(Position center){
 		this.minutiae = new ArrayList<Minutia>();
-		this.deltaDistances = new TreeMap<Double,Minutia>();
-		this.deltaAngles = new TreeMap<Minutia, Integer>();
+		this.deltaValues = new HashMap<Minutia, DeltaInformation>();
 		this.centerPoint = center;
 	}
 	
@@ -31,15 +30,14 @@ public class SearchPattern {
 		for (Minutia m : this.minutiae) {
 			if(!m.equals(designatedOrigin)){
 				deltaDistance = m.calculateDeltaDistance(this.designatedOrigin.getPosition());
-				this.deltaDistances.put(deltaDistance, m);
-//				deltaAngle = m.calculateDeltaAngle(this.designatedOrigin);
-//				this.deltaAngles.put(m, deltaAngle);
+				deltaAngle = m.calculateDeltaAngle(this.designatedOrigin);
+				this.deltaValues.put(m, new DeltaInformation(deltaDistance, deltaAngle));
 			}
 		}
 		
-		for (Double key : this.deltaDistances.keySet()) {
-            System.out.println("key/value: " + key + "/"+this.deltaDistances.get(key).getIndex());
-        }
+//		for (Minutia key : this.deltaValues.keySet()) {
+//            System.out.println("key/value: " + key + "/"+this.deltaValues.get(key));
+//        }
 		System.out.println("\n");
 		
 	}
