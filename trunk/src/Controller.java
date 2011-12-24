@@ -82,7 +82,7 @@ public class Controller {
 						m.setAngle(Integer.parseInt(strLine.substring(strLine.length() - 4).trim()));
 						
 						strLine = br.readLine();
-						m.setMinQuality(Integer.parseInt(strLine.substring(strLine.length() - 4).trim()));
+						m.setQuality(Integer.parseInt(strLine.substring(strLine.length() - 4).trim()));
 						
 						if(t == null) System.out.println("FUCK");
 						t.addMinutia(m);
