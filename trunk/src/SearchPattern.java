@@ -1,8 +1,5 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
-
 
 public class SearchPattern {
 	
@@ -27,7 +24,6 @@ public class SearchPattern {
 		int deltaAngle;
 		this.evalDesignatedOrigin();
 		
-		//TODO: new DeltaInformation object
 		for (Minutia minutia : this.minutiae) {
 			if(!minutia.equals(this.designatedOrigin)){
 				deltaDistance = minutia.calculateDeltaDistance(this.designatedOrigin.getPosition());
@@ -38,9 +34,7 @@ public class SearchPattern {
 		
 		if(this.deltaValues.size() > 0){
 			for (Minutia key : this.deltaValues.keySet()) {
-//				deltaDistance = key.getDistance();
-//				System.out.println(deltaDistance);
-	            System.out.println("key/value: " + key.getIndex() + "/" + this.deltaValues.get(key).getDistance());
+	            System.out.println("minutia index: " + key.getIndex() + "\tdelta distance: " + this.deltaValues.get(key).getDistance() + "\tdelta angle: " + this.deltaValues.get(key).getAngle());
 	        }
 			System.out.println("\n");
 		}
@@ -59,5 +53,4 @@ public class SearchPattern {
 		}
 		this.designatedOrigin = tempMinutia;
 	}
-	
 }
