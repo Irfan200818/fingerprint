@@ -1,5 +1,5 @@
 
-public class DeltaInformation {
+public class DeltaInformation implements Comparable<DeltaInformation>{
 	private double distance;
 	private int angle;
 	
@@ -14,5 +14,16 @@ public class DeltaInformation {
 
 	public int getAngle() {
 		return angle;
+	}
+
+	@Override
+	public int compareTo(DeltaInformation deltaInformation) {
+		if(this.distance > deltaInformation.getDistance()) {
+			 return 1;
+		} else if(this.distance == deltaInformation.getDistance()) {
+			 return 0;
+		} else {
+			 return -1;
+		}
 	}
 }
