@@ -38,45 +38,8 @@ public class Template {
 	
 	public boolean compareTemplate(Template t2) {
 		// algorithm here
-		
-		Position center1 = new Position(this.width/4, this.height/4);
-		Position center2 = new Position(this.width/4*3, this.height/4);
-		Position center3 = new Position(this.width/4*3, this.height/4*3);
-		Position center4 = new Position(this.width/4, this.height/4*3);
-		
-		SearchPattern sP1 = new SearchPattern(center1);
-		SearchPattern sP2 = new SearchPattern(center2);
-		SearchPattern sP3 = new SearchPattern(center3);
-		SearchPattern sP4 = new SearchPattern(center4);
-		
-		for (Minutia minutia : this.minutiae) {
-			int minutiaX = minutia.getPosition().getX();
-			int minutiaY = minutia.getPosition().getY();
-			
-			if(minutiaX < this.width/2 && minutiaY < this.height/2){
-				sP1.addMinutia(minutia);
-			}
-			else if(minutiaX > this.width/2 && minutiaY < this.height/2){
-				sP2.addMinutia(minutia);
-			}
-			else if(minutiaX > this.width/2 && minutiaY > this.height/2){
-				sP3.addMinutia(minutia);
-			}
-			else if(minutiaX < this.width/2 && minutiaY > this.height/2){
-				sP4.addMinutia(minutia);
-			}
-		}
-		
-		sP1.calculateDeltaValues();
-		sP2.calculateDeltaValues();
-		sP3.calculateDeltaValues();
-		sP4.calculateDeltaValues();
-		
-		
-		if(this == t2)
-			return true;
-		
-		return false;
+		TemplateComparator comparator = new TemplateComparator(this.height, this.width, this.minutiae);
+		return comparator.compare(this, t2);
 	}
 
 	public int getTempNr() {

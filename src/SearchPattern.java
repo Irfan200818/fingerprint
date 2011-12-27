@@ -19,7 +19,6 @@ public class SearchPattern {
 	}
 	
 	public void calculateDeltaValues(){
-		
 		double deltaDistance;
 		int deltaAngle;
 		this.evalDesignatedOrigin();
