@@ -9,6 +9,8 @@ public class TemplateComparator {
 	private final Position centerQ2;
 	private final Position centerQ3;
 	private final Position centerQ4;
+	private final double DISTANCE_TOLERANCE = 2.0;
+	private final int ANGLE_TOLERANCE = 2;
 	private Template template;
 	private Template sample;
 	private List<Pattern> searchPatterns;
@@ -37,24 +39,26 @@ public class TemplateComparator {
 			
 			
 			// TODO while(if pattern is not found)
-			this.compareMinutiaMaps(searchPattern.getDeltaValues(), this.samplePattern.getDeltaValues());
 			// TODO if pattern is found --> continue check with next pattern
+			while(this.compareMinutiaMaps(searchPattern.getDeltaValues(), this.samplePattern.getDeltaValues())){
+				this.samplePattern.changeOriginAndPrepare();
+			}
 			
-
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
-			this.samplePattern.changeOriginAndPrepare();
 			
+			
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			this.samplePattern.changeOriginAndPrepare();
+//			
 			break;
 		}
 		
@@ -67,9 +71,48 @@ public class TemplateComparator {
 	}
 	
 	
-	private void compareMinutiaMaps(Map<Minutia, DeltaInformation> searchPatternMap, Map<Minutia, DeltaInformation> sampelPatternMap) {
+	private boolean compareMinutiaMaps(Map<Minutia, DeltaInformation> searchPatternMap, Map<Minutia, DeltaInformation> samplePatternMap) {
 		//TODO: if pattern is not found (for check --> Template1 = Template41)
+		List<Minutia> matchs = new ArrayList<Minutia>();
+		double searchPatternDistance;
+		double samplePatternDistance;
+		double deltaDistance;
+		int searchPatternAngle;
+		int samplePatternAngle;
+		int deltaAngle;
 		
+		for (Minutia searchKey : searchPatternMap.keySet()) {
+			searchPatternDistance = searchPatternMap.get(searchKey).getDistance();
+			searchPatternAngle = searchPatternMap.get(searchKey).getAngle();
+			for (Minutia sampleKey : samplePatternMap.keySet()) {
+				samplePatternDistance = samplePatternMap.get(sampleKey).getDistance();
+				samplePatternAngle = samplePatternMap.get(sampleKey).getAngle();
+				
+				if(searchPatternDistance + this.DISTANCE_TOLERANCE < samplePatternDistance){
+					break;
+				}
+				else if(searchPatternDistance - this.DISTANCE_TOLERANCE > samplePatternDistance){
+					continue;
+				}
+				else{
+					deltaDistance = Math.abs(searchPatternDistance - samplePatternDistance);
+					if(deltaDistance <= this.DISTANCE_TOLERANCE){
+						deltaAngle = Math.abs(searchPatternAngle - samplePatternAngle);
+						if(deltaAngle <= this.ANGLE_TOLERANCE){
+							matchs.add(sampleKey);
+							System.out.println("found: " + sampleKey.getIndex());
+							break;
+						}
+					}
+				}
+			}
+		}
+		if(matchs.size() >= searchPatternMap.size()/2){
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 
