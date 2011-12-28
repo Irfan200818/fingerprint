@@ -66,6 +66,8 @@ public class TemplateComparator {
 			scoreValue += value;
 		}
 		scoreValue /= ScoreValues.size();
+		
+		//TODO: delete print out section
 		System.out.println("score value: " + scoreValue);
 		
 		if (this.template.equals(this.sample)) {
@@ -80,8 +82,9 @@ public class TemplateComparator {
 	}
 	
 	
+	// TODO: compare-algorithmus noch nicht effizient, wenn pattern NICHT gefunden wird
+	// TODO: wenn pattern gefunden wird ist er relativ schnell (testen --> Template1 = Template41)
 	private List<Minutia> compareMinutiaMaps(Map<Minutia, DeltaInformation> searchPatternMap, Map<Minutia, DeltaInformation> samplePatternMap) {
-		//TODO: if pattern is not found (for check --> Template1 = Template41)
 		List<Minutia> matches = new ArrayList<Minutia>();
 		double searchPatternDistance;
 		double samplePatternDistance;
