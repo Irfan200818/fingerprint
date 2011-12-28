@@ -1,6 +1,7 @@
 import java.io.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -160,9 +161,9 @@ public class GUI extends JFrame {
 
 		g2.setBackground(Color.white);
 		g2.clearRect(0, 0, 288, 384);
-		ArrayList<Minutia> minutias = t.getMinutias();
+		List<Minutia> minutiae = t.getMinutiae();
 		int type;
-		for(Minutia m : minutias) {
+		for(Minutia m : minutiae) {
 			type = m.getType();
 			switch(type) {
 				case(0): g2.setColor(Color.GREEN); break;
