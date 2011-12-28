@@ -23,13 +23,24 @@ public class Pattern {
 		this.referencePoint = referencPosition;
 	}
 	
+	
 	public int getPatternID(){
 		return this.patternID;
 	}
-
+	
 	
 	public void addMinutia(Minutia m){
 		this.minutiae.add(m);
+	}
+	
+	
+	public List<Minutia> getMinutiae() {
+		return minutiae;
+	}
+	
+	
+	public Minutia getDesignatedOrigin() {
+		return designatedOrigin;
 	}
 	
 	

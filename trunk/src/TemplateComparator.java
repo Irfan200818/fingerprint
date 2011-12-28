@@ -31,38 +31,47 @@ public class TemplateComparator {
 	
 	
 	public boolean compare() {
+		List<List<Minutia>> patternMatches = new ArrayList<List<Minutia>>();
+		List<Minutia> tempPatternMatches = new ArrayList<Minutia>();
+		List<Double> ScoreValues = new ArrayList<Double>();
+		double scoreValue = 0;
+		double foundedMinutiae = 0;
+		double totalMinutiae = 0;
+		boolean searching = true;
+		
 		for (Pattern searchPattern : this.searchPatterns) {
 			this.processingPattern = searchPattern.getPatternID();
 			this.initSamplePattern(this.sample.getMinutiae());
 			searchPattern.prepare();
 			this.samplePattern.prepare();
-			
-			
-			// TODO while(if pattern is not found)
-			// TODO if pattern is found --> continue check with next pattern
-			while(this.compareMinutiaMaps(searchPattern.getDeltaValues(), this.samplePattern.getDeltaValues())){
-				this.samplePattern.changeOriginAndPrepare();
+			while(searching){
+				tempPatternMatches = this.compareMinutiaMaps(searchPattern.getDeltaValues(), this.samplePattern.getDeltaValues());
+				if(tempPatternMatches == null){
+					this.samplePattern.changeOriginAndPrepare();
+				}
+				else{
+					searching = false;
+				}
 			}
-			
-			
-			
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			this.samplePattern.changeOriginAndPrepare();
-//			
-			break;
+			tempPatternMatches.add(searchPattern.getDesignatedOrigin());
+			patternMatches.add(tempPatternMatches);
+			foundedMinutiae = tempPatternMatches.size();
+			totalMinutiae = searchPattern.getMinutiae().size();
+			ScoreValues.add(foundedMinutiae/totalMinutiae);
+			tempPatternMatches.clear();
+			searching = true;
 		}
 		
+		for (Double value : ScoreValues) {
+			scoreValue += value;
+		}
+		scoreValue /= ScoreValues.size();
+		System.out.println("score value: " + scoreValue);
+		
 		if (this.template.equals(this.sample)) {
+			return true;
+		}
+		else if(scoreValue >= 0.6){
 			return true;
 		}
 		else{
@@ -71,9 +80,9 @@ public class TemplateComparator {
 	}
 	
 	
-	private boolean compareMinutiaMaps(Map<Minutia, DeltaInformation> searchPatternMap, Map<Minutia, DeltaInformation> samplePatternMap) {
+	private List<Minutia> compareMinutiaMaps(Map<Minutia, DeltaInformation> searchPatternMap, Map<Minutia, DeltaInformation> samplePatternMap) {
 		//TODO: if pattern is not found (for check --> Template1 = Template41)
-		List<Minutia> matchs = new ArrayList<Minutia>();
+		List<Minutia> matches = new ArrayList<Minutia>();
 		double searchPatternDistance;
 		double samplePatternDistance;
 		double deltaDistance;
@@ -87,7 +96,6 @@ public class TemplateComparator {
 			for (Minutia sampleKey : samplePatternMap.keySet()) {
 				samplePatternDistance = samplePatternMap.get(sampleKey).getDistance();
 				samplePatternAngle = samplePatternMap.get(sampleKey).getAngle();
-				
 				if(searchPatternDistance + this.DISTANCE_TOLERANCE < samplePatternDistance){
 					break;
 				}
@@ -99,19 +107,23 @@ public class TemplateComparator {
 					if(deltaDistance <= this.DISTANCE_TOLERANCE){
 						deltaAngle = Math.abs(searchPatternAngle - samplePatternAngle);
 						if(deltaAngle <= this.ANGLE_TOLERANCE){
-							matchs.add(sampleKey);
+							matches.add(sampleKey);
+							
+							//TODO: delete print out section
 							System.out.println("found: " + sampleKey.getIndex());
+							
 							break;
 						}
 					}
 				}
 			}
 		}
-		if(matchs.size() >= searchPatternMap.size()/2){
-			return false;
+		
+		if(matches.size() >= searchPatternMap.size()/2){
+			return matches;
 		}
 		else{
-			return true;
+			return null;
 		}
 	}
 
