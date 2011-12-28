@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.ArrayList;
 
 
@@ -13,7 +14,7 @@ public class Template {
 	private int imprType;
 	private int fingQuality;
 	private int nMinutiae;
-	private ArrayList<Minutia> minutiae;
+	private List<Minutia> minutiae;
 	
 	public Template(int tempNr) {
 		this.setTempNr(tempNr);
@@ -38,8 +39,8 @@ public class Template {
 	
 	public boolean compareTemplate(Template t2) {
 		// algorithm here
-		TemplateComparator comparator = new TemplateComparator(this.height, this.width, this.minutiae);
-		return comparator.compare(this, t2);
+		TemplateComparator comparator = new TemplateComparator(this, t2);
+		return comparator.compare();
 	}
 
 	public int getTempNr() {
@@ -138,8 +139,8 @@ public class Template {
 		this.nMinutiae = nMinutiae;
 	}
 
-	public ArrayList<Minutia> getMinutias() {
-		return minutiae;
+	public List<Minutia> getMinutiae() {
+		return this.minutiae;
 	}
 
 	public void setMinutias(ArrayList<Minutia> minutias) {
