@@ -66,12 +66,17 @@ public class GUI extends JFrame {
 	
 	private void compareOnetoOne(Template t1, Template t2) {
 		String match = "Nein";
-		if(t1.compareTemplate(t2)) match = "Ja";
+		if(t1.compareTemplate(t2)
+				//&&!t1.equals(t2)
+				) 
+		//{
+			match = "Ja";
 		this.addOutputLine("Template 1:\tNr. " + t1.getTempNr() +
 				"\tMinutias:\t" + t1.getnMinutiae() +
 				"\tTemplate 2:\tNr. " + t2.getTempNr() +
 				"\tMinutias:\t" + t2.getnMinutiae() +
 				"\tMatch:\t" + match);
+		//}
 	}
 	
 	private void compareOnetoAll(Template t1) {
