@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Template {
 	
+	private final double MIN_RECOGNITION_SCORE_VALUE = 0.6;
 	private int tempNr;
 	private int width, height;
 	private int xRes, yRes;
@@ -39,8 +40,23 @@ public class Template {
 	
 	public boolean compareTemplate(Template t2) {
 		// algorithm here
-		TemplateComparator comparator = new TemplateComparator(this, t2);
-		return comparator.compare();
+		
+		TemplateComparator1 comparator = new TemplateComparator1(this, t2);
+		double scoreValue = comparator.compare();
+		System.out.println("\n" + scoreValue);
+		
+
+		if(scoreValue >= MIN_RECOGNITION_SCORE_VALUE){
+			return true;
+		}
+		else{
+			return false;
+		}
+		
+		
+//		TemplateComparator comparator = new TemplateComparator(this, t2);
+//		return comparator.compare();
+		
 	}
 
 	public int getTempNr() {

@@ -26,4 +26,14 @@ public class DeltaInformation implements Comparable<DeltaInformation>{
 			 return -1;
 		}
 	}
+	
+	public boolean equals(DeltaInformation deltaInformation){
+		if(this.distance == deltaInformation.getDistance() && this.angle == deltaInformation.getAngle()){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
 }
