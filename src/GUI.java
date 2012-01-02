@@ -69,7 +69,7 @@ public class GUI extends JFrame {
 		String match = "Nein";
 		if(matchResult.getMatch()) match = "Ja";
 		this.addOutputLine("Template 1: Nr. " + t1.getTempNr() +
-				"\tMinutias: " + t1.getnMinutiae() +
+				"\tMinutias:" + t1.getnMinutiae() +
 				"\tTemplate 2: Nr. " + t2.getTempNr() +
 				"\tMinutias: " + t2.getnMinutiae() +
 				"\tScore Value: "+ matchResult.getScore() +
