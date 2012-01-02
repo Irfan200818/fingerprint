@@ -68,12 +68,12 @@ public class GUI extends JFrame {
 		Match matchResult = t1.compareTemplate(t2);
 		String match = "Nein";
 		if(matchResult.getMatch()) match = "Ja";
-		this.addOutputLine("Template 1:\tNr. " + t1.getTempNr() +
-				"\tMinutias:\t" + t1.getnMinutiae() +
-				"\tTemplate 2:\tNr. " + t2.getTempNr() +
-				"\tMinutias:\t" + t2.getnMinutiae() +
-				"\tScore Value:\t"+ matchResult.getScore() +
-				"\tMatch:\t" + match);
+		this.addOutputLine("Template 1: Nr. " + t1.getTempNr() +
+				"\tMinutias: " + t1.getnMinutiae() +
+				"\tTemplate 2: Nr. " + t2.getTempNr() +
+				"\tMinutias: " + t2.getnMinutiae() +
+				"\tScore Value: "+ matchResult.getScore() +
+				"\tMatch: " + match);
 		
 	}
 	
@@ -183,13 +183,15 @@ public class GUI extends JFrame {
 		this.output.setEditable(false);
 		
 		JScrollPane jsp = new JScrollPane(this.output);
-		jsp.setPreferredSize(new Dimension(900, 300));
+		jsp.setPreferredSize(new Dimension(950, 300));
 		jsp.setBorder(BorderFactory.createEtchedBorder());
         return jsp;
 	}
 	
 	public void addOutputLine(String string){
+	
 		this.output.append(string+"\n");
+		//this.output.setBackground(Color.blue);
 	}
 	
 	private void chooseTemplatefile() {
