@@ -7,11 +7,11 @@ public class TemplateComparator1 {
 	
 	// The minimum recognition factor (for multiplying with the number of search minutiae) --> percent value, standard 70%
 	private final double MIN_RECOGNIZED_MINUTIA_FACTOR = 0.7;
-	// The maximum origin change factor (for multiplying with the number of minutiae in the sample-template) --> percent value, standard 80% (less is faster)
-	private final double ORIGIN_CHANGE_COUNTER_FACTOR = 0.8;
-	// The tolerance of the delta distance value --> standard 3
+	// The maximum origin change factor (for multiplying with the number of minutiae in the sample-template) --> percent value, standard 85% (less is faster but has a lesser recognition rate)
+	private final double ORIGIN_CHANGE_COUNTER_FACTOR = 0.85;
+	// The tolerance of the delta distance value --> standard 3 (+3/-3)
 	private final double DISTANCE_TOLERANCE = 3;
-	// The tolerance of the delta angle value --> standard 2°
+	// The tolerance of the delta angle value --> standard 2° (+2/-2)
 	private final int ANGLE_TOLERANCE = 2;
 	
 	private final Position CENTER_Q1;
