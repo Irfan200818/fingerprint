@@ -38,8 +38,10 @@ public class Template {
 //		this.minutias = new ArrayList<Minutia>();
 //	}
 	
-	public boolean compareTemplate(Template t2) {
+	public Match compareTemplate(Template t2) {
 		// algorithm here
+		boolean match;
+
 		
 		TemplateComparator1 comparator = new TemplateComparator1(this, t2);
 		double scoreValue = comparator.compare();
@@ -47,11 +49,14 @@ public class Template {
 		
 
 		if(scoreValue >= MIN_RECOGNITION_SCORE_VALUE){
-			return true;
+			match = true;
 		}
 		else{
-			return false;
+			match = false;
 		}
+		Match matchResult = new Match(match, scoreValue);
+		
+		return matchResult;
 		
 		
 //		TemplateComparator comparator = new TemplateComparator(this, t2);
