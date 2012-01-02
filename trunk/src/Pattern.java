@@ -35,21 +35,29 @@ public class Pattern {
 	
 	
 	public List<Minutia> getMinutiae() {
-		return minutiae;
+		return this.minutiae;
 	}
 	
 	
 	public Minutia getDesignatedOrigin() {
-		return designatedOrigin;
+		return this.designatedOrigin;
 	}
 	
 	
+	public void setDesignatedOrigin(Minutia designatedOrigin) {
+		this.designatedOrigin = designatedOrigin;
+	}
+
+
 	public Map<Minutia, DeltaInformation> getDeltaValues() {
 		return this.deltaValues;
 	}
-
+	
+	
 	public void prepare(){
-		this.calculateOriginOrder();
+		if(this.designatedOrigin == null){
+			this.calculateOriginOrder();
+		}
 		this.calculateDeltaValues();
 	}
 	
@@ -60,13 +68,13 @@ public class Pattern {
 	}
 	
 	
-	private void calculateDeltaValues(){
+	public void calculateDeltaValues(){
 		double deltaDistance;
 		int deltaAngle;
 		for (Minutia minutia : this.minutiae) {
 			if(!minutia.equals(this.designatedOrigin)){
 				deltaDistance = minutia.calculateDeltaDistance(this.designatedOrigin.getPosition());
-				deltaAngle = minutia.calculateDeltaAngle(this.designatedOrigin);
+				deltaAngle = this.designatedOrigin.calculateDeltaAngle(minutia);
 				this.deltaValues.put(minutia, new DeltaInformation(deltaDistance, deltaAngle));
 			}
 		}
@@ -81,7 +89,7 @@ public class Pattern {
 	}
 	
 	
-	private void calculateOriginOrder(){
+	public void calculateOriginOrder(){
 		Map<Minutia, Double> originOrder = new ValueSortedMap<Minutia, Double>();
 		for (Minutia minutia : this.minutiae) {
 			originOrder.put(minutia, minutia.calculateDeltaDistance(this.referencePoint));
@@ -89,21 +97,21 @@ public class Pattern {
 		for (Minutia key : originOrder.keySet()) {
 			this.origins.add(key);
 		}
-		this.setNextDesignatedOrigin();
+//		this.setNextDesignatedOrigin();
 
 		// TODO: delete print out section
-		for (Minutia minutia : this.origins) {
-			System.out.println("minutia index: " + minutia.getIndex());
-		}
-		System.out.println("\n");
+//		for (Minutia minutia : this.origins) {
+//			System.out.println("minutia index: " + minutia.getIndex());
+//		}
+//		System.out.println("\n");
 	}
 	
 	
-	private void setNextDesignatedOrigin(){
-		int index = this.originIndex;
+	public void setNextDesignatedOrigin(){
+//		int index = this.originIndex;
 		if(this.originIndex < this.origins.size()){
+			this.designatedOrigin = this.origins.get(this.originIndex);
 			this.originIndex++;
-			this.designatedOrigin = this.origins.get(index);
 			
 			// TODO: delete print out section
 			System.out.println("designated origin (minutia) index: " + this.designatedOrigin.getIndex() + "\n");
