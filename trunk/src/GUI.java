@@ -75,7 +75,6 @@ public class GUI extends JFrame {
 	private void compareOnetoOne(Template t1, Template t2) {
 		Match matchResult = t1.compareTemplate(t2);
 		String match = "Nein";
-//		double scoreValue = matchResult.getScore()*100;
 		if(matchResult.getMatch()) match = "Ja";
 		String[] row = {"Nr. " + t1.getTempNr(),
 				"" + t1.getnMinutiae(),
@@ -224,6 +223,7 @@ public class GUI extends JFrame {
 		this.dtmOutput.addRow(rowData);
 	}
 	
+	
 	private void removeAllTableRows(){
 		this.dtmOutput.getDataVector().removeAllElements();
 	}
@@ -242,7 +242,6 @@ public class GUI extends JFrame {
 		}
 		this.controller.readFile(file);
 	}
-	
 	
 	
 //	private void createPicture(Template t, Graphics2D g) {
