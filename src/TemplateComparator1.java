@@ -4,11 +4,16 @@ import java.util.Map;
 
 
 public class TemplateComparator1 {
-
+	
+	// The minimum recognition factor (for multiplying with the number of search minutiae) --> percent value, standard 70%
 	private final double MIN_RECOGNIZED_MINUTIA_FACTOR = 0.7;
-	private final double ORIGIN_CHANGE_COUNTER_FACTOR = 1;
-	private final double DISTANCE_TOLERANCE = 3.0;
+	// The maximum origin change factor (for multiplying with the number of minutiae in the sample-template) --> percent value, standard 80% (less is faster)
+	private final double ORIGIN_CHANGE_COUNTER_FACTOR = 0.8;
+	// The tolerance of the delta distance value --> standard 3
+	private final double DISTANCE_TOLERANCE = 3;
+	// The tolerance of the delta angle value --> standard 2°
 	private final int ANGLE_TOLERANCE = 2;
+	
 	private final Position CENTER_Q1;
 	private final Position CENTER_Q2;
 	private final Position CENTER_Q3;
@@ -115,7 +120,7 @@ public class TemplateComparator1 {
 				if(searchPatternLastDesignatedOrigin == null){
 					samplePatternLastDesignatedOrigin = this.samplePattern.getDesignatedOrigin();
 					searchPatternLastDesignatedOrigin = searchPattern.getDesignatedOrigin();
-					designatedOrigins.add(searchPatternLastDesignatedOrigin);
+					designatedOrigins.add(samplePatternLastDesignatedOrigin);
 				}
 				
 				// Calculate search pattern score value
@@ -199,8 +204,10 @@ public class TemplateComparator1 {
 			}
 			if(possibleMinutia != null && !finalMatches.contains(possibleMinutia)){
 				finalMatches.add(possibleMinutia);
+				
 				//TODO: delete print out section
 				System.out.println("found: " + possibleMinutia.getIndex());
+				
 				possibleMinutia = null;
 				shortestDeltaDistance = 9999;
 				lowestDeltaAngle = 9999;
