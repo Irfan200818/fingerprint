@@ -22,32 +22,14 @@ public class Template {
 		this.minutiae = new ArrayList<Minutia>();
 	}
 	
-//	public Template(int width, int height, int xRes, int yRes, int nViews, int fvhIndexNr,
-//			int fingPos, int nView, int imprType, int fingQuality, int nMinutiae) {
-//		this.setWidth(width);
-//		this.setHeight(height);
-//		this.setxRes(xRes);
-//		this.setyRes(yRes);
-//		this.setnViews(nViews);
-//		this.setFvhIndexNr(fvhIndexNr);
-//		this.setFingPos(fingPos); 
-//		this.setnView(nView);
-//		this.setImprType(imprType);
-//		this.setFingQuality(fingQuality);
-//		this.setnMinutiae(nMinutiae);
-//		this.minutias = new ArrayList<Minutia>();
-//	}
 	
 	public Match compareTemplate(Template t2) {
-		// algorithm here
 		boolean match;
-
 		
-		TemplateComparator1 comparator = new TemplateComparator1(this, t2);
+		TemplateComparator comparator = new TemplateComparator(this, t2);
 		double scoreValue = comparator.compare();
 		System.out.println("\n" + scoreValue);
 		
-
 		if(scoreValue >= MIN_RECOGNITION_SCORE_VALUE){
 			match = true;
 		}
@@ -57,11 +39,6 @@ public class Template {
 		Match matchResult = new Match(match, scoreValue);
 		
 		return matchResult;
-		
-		
-//		TemplateComparator comparator = new TemplateComparator(this, t2);
-//		return comparator.compare();
-		
 	}
 
 	public int getTempNr() {
