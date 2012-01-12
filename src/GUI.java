@@ -239,6 +239,8 @@ public class GUI extends JFrame {
 			file = chooser.getSelectedFile();
 			controller = null;
 			controller = new Controller();
+		} else {
+			System.exit(0);
 		}
 		this.controller.readFile(file);
 	}
