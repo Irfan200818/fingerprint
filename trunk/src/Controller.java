@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class Controller {
 	
-	private ArrayList<Template> templates;
+	private List<Template> templates;
 	
 	public Controller() {
 		this.templates = new ArrayList<Template>();
@@ -97,7 +99,7 @@ public class Controller {
 	
 		}
 	
-	public ArrayList<Template> getTemplates() {
+	public List<Template> getTemplates() {
 		return this.templates;
 	}
 

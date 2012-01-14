@@ -82,7 +82,8 @@ public class Minutia {
 	 * @return
 	 */
 	public int calculateDeltaAngle(Minutia m){
-		return Math.abs(this.angle - m.getAngle());
+//		return Math.abs(this.angle - m.getAngle());
+		return this.angle-m.getAngle();
 //		if(this.angle > m.getAngle()){
 //			return ;
 //		}
