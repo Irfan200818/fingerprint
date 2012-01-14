@@ -1,10 +1,11 @@
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
 
 
 public class Template {
 	
-	private final double MIN_RECOGNITION_SCORE_VALUE = 0.6;
+	private final double MIN_RECOGNITION_SCORE_VALUE = 0.65;
 	private int tempNr;
 	private int width, height;
 	private int xRes, yRes;
