@@ -1,9 +1,7 @@
 import java.io.*;
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,8 +21,7 @@ public class GUI extends JFrame {
 	private JTable jtOutput;
 	private BufferedImage image1, image2;
 	private Controller controller;
-	private ArrayList<Template> templates;
-	private NumberFormat numberFormat;
+	private List<Template> templates;
 	private DefaultTableModel dtmOutput;
 	private String[] tableHeaderNames= {"Template 1", "Number of Minutiae", "Template 2", "Number of Minutiae", "Score value", "Match"};
 
@@ -66,8 +63,6 @@ public class GUI extends JFrame {
 		};
 		this.chooseTemplatefile();
 		this.templates = this.controller.getTemplates();
-		this.numberFormat = NumberFormat.getInstance();
-		this.numberFormat.setMaximumFractionDigits(2);
 		createGUI();
 	}
 	
