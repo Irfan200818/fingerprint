@@ -2,18 +2,25 @@
 public class DeltaInformation implements Comparable<DeltaInformation>{
 	private double distance;
 	private int angle;
+	private double orientation;
 	
-	public DeltaInformation(double distance, int angle){
+	
+	public DeltaInformation(double distance, int angle, double orientation){
 		this.distance = distance;
 		this.angle = angle;
+		this.orientation = orientation;
 	}
-
+	
 	public double getDistance() {
-		return distance;
+		return this.distance;
 	}
-
+	
 	public int getAngle() {
-		return angle;
+		return this.angle;
+	}
+	
+	public double getOrientation(){
+		return this.orientation;
 	}
 
 	@Override
@@ -28,7 +35,7 @@ public class DeltaInformation implements Comparable<DeltaInformation>{
 	}
 	
 	public boolean equals(DeltaInformation deltaInformation){
-		if(this.distance == deltaInformation.getDistance() && this.angle == deltaInformation.getAngle()){
+		if(this.distance == deltaInformation.getDistance() && this.angle == deltaInformation.getAngle() && this.orientation == deltaInformation.getOrientation()){
 			return true;
 		}
 		else{
