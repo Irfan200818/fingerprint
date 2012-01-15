@@ -75,6 +75,7 @@ public class Pattern {
 	
 	public void setDesignatedOrigin(Minutia designatedOrigin) {
 		this.designatedOrigin = designatedOrigin;
+		this.calculateDeltaValues();
 	}
 
 
@@ -97,7 +98,7 @@ public class Pattern {
 	}
 	
 	
-	public void calculateDeltaValues(){
+	private void calculateDeltaValues(){
 		double deltaDistance;
 		int deltaAngle;
 		int deltaY;
@@ -163,6 +164,7 @@ public class Pattern {
 		if(this.originIndex < this.origins.size()){
 			this.designatedOrigin = this.origins.get(this.originIndex);
 			this.originIndex++;
+			this.calculateDeltaValues();
 			
 			// TODO: delete print out section
 //			System.out.println("\n----------------\ndesignated origin (minutia) index: " + this.designatedOrigin.getIndex() + "\n");
