@@ -18,6 +18,7 @@ public class GUI extends JFrame {
 	private JLabel picture1, picture2;
 	private JButton one2oneButton, one2allButton, all2allButton;
 	private JComboBox<Template> templateList1, templateList2;
+	private JCheckBox onlyPositiv;
 	private JTable jtOutput;
 	private BufferedImage image1, image2;
 	private Controller controller;
@@ -71,21 +72,21 @@ public class GUI extends JFrame {
 		Match matchResult = t1.compareTemplate(t2);
 		String match = "Nein";
 		if(matchResult.getMatch()) match = "Ja";
-		String[] row = {"Nr. " + t1.getTempNr(),
-				"" + t1.getnMinutiae(),
-				"Nr. " + t2.getTempNr(),
-				"" + t2.getnMinutiae(),
-				matchResult.getScore()*100 + "%",
-				match};
-		this.addTableRow(row);
+		if(!this.onlyPositiv.isSelected() || matchResult.getMatch()) {
+			String[] row = {"Nr. " + t1.getTempNr(),
+					"" + t1.getnMinutiae(),
+					"Nr. " + t2.getTempNr(),
+					"" + t2.getnMinutiae(),
+					matchResult.getScore()*100 + "%",
+					match};
+			this.addTableRow(row);
+		}
 	}
-	
 	
 	private void compareOnetoAll(Template t1) {
 		for(Template t2 : this.templates)
 			this.compareOnetoOne(t1, t2);
 	}
-	
 	
 	private void compareAlltoAll() {
 		String[] emptyRow = {};
@@ -94,7 +95,6 @@ public class GUI extends JFrame {
 			this.addTableRow(emptyRow);
 		}
 	}
-	
 	
 	private void createGUI() {
 
@@ -122,6 +122,9 @@ public class GUI extends JFrame {
         this.all2allButton.addActionListener(this.listener);
         this.all2allButton.setActionCommand("compareAll2All");
 		mainPanel.add(this.all2allButton);
+		
+		this.onlyPositiv = new JCheckBox("Show only matches");
+		mainPanel.add(this.onlyPositiv);
 
 		mainPanel.add(this.outputTable());
 		
@@ -192,7 +195,7 @@ public class GUI extends JFrame {
 	
 	
 	private JScrollPane outputTable(){
-		this.dtmOutput = new DefaultTableModel(){
+		this.dtmOutput = new DefaultTableModel() {
 		    public boolean isCellEditable(int rowIndex, int mColIndex) {
 		        return false;
 		    }
@@ -221,12 +224,12 @@ public class GUI extends JFrame {
 	
 	private void removeAllTableRows(){
 		this.dtmOutput.getDataVector().removeAllElements();
+		this.dtmOutput.fireTableDataChanged();
 	}
 	
 	
 	private void chooseTemplatefile() {
-		JFileChooser chooser = new JFileChooser("D:\\BFH\\Biometrie\\Semesterarbeit\\");
-//		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser();
 		
 		File file = null;
 	    int returnVal = chooser.showOpenDialog(null);
