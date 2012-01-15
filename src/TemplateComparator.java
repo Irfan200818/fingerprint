@@ -168,7 +168,6 @@ public class TemplateComparator {
 			deltaAngle = this.searchPatternLastDesignatedOrigin.calculateDeltaAngle(searchPattern.getDesignatedOrigin());
 			deltaValues.put(searchPattern.getDesignatedOrigin(), new DeltaInformation(deltaDistance, deltaAngle, searchPattern.getMinutiaOrientation(deltaDistance, deltaY)));
 			samplePattern.setDesignatedOrigin(this.samplePatternLastDesignatedOrigin);
-			samplePattern.calculateDeltaValues();
 			tempDesignatedOrigin = this.compareMinutiaMaps(deltaValues, samplePattern.getDeltaValues());
 			this.deltaValueMatchCounter = 0;
 			this.matchCounter = 0;
@@ -176,7 +175,6 @@ public class TemplateComparator {
 				this.samplePatternNextDesignatedOrigin = tempDesignatedOrigin.get(0);
 				this.tempFoundDesigatedOrigins.add(this.samplePatternNextDesignatedOrigin);
 				samplePattern.setDesignatedOrigin(this.samplePatternNextDesignatedOrigin);
-				samplePattern.calculateDeltaValues();
 				searchDesignatedOrigin = true;
 				
 				
@@ -212,7 +210,6 @@ public class TemplateComparator {
 				this.matchCounter = 0;
 				if(originChangeCounter != Integer.MAX_VALUE){
 					samplePattern.setNextDesignatedOrigin();
-					samplePattern.calculateDeltaValues();
 					originChangeCounter++;
 				}
 			}
@@ -394,7 +391,6 @@ public class TemplateComparator {
 		for (Pattern searchPattern : this.searchPatterns) {
 			searchPattern.calculateOriginOrder();
 			searchPattern.setNextDesignatedOrigin();
-			searchPattern.calculateDeltaValues();
 		}
 	}
 	
@@ -469,7 +465,6 @@ public class TemplateComparator {
 		for (Pattern verificationPattern : this.verificationPatterns) {
 			verificationPattern.calculateOriginOrder();
 			verificationPattern.setNextDesignatedOrigin();
-			verificationPattern.calculateDeltaValues();
 		}
 	}
 	
@@ -537,7 +532,6 @@ public class TemplateComparator {
 		for (Pattern samplePattern : this.samplePatterns) {
 			samplePattern.calculateOriginOrder();
 			samplePattern.setNextDesignatedOrigin();
-			samplePattern.calculateDeltaValues();
 		}
 	}
 	

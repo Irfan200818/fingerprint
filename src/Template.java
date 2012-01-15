@@ -27,7 +27,7 @@ public class Template {
 	public Match compareTemplate(Template t2) {
 		boolean match;
 		
-		TemplateComparator comparator = new TemplateComparator(this, t2);
+		TemplateComparator1 comparator = new TemplateComparator1(this, t2);
 		double scoreValue = comparator.compare();
 		System.out.println("\n" + scoreValue);
 		
