@@ -229,7 +229,8 @@ public class GUI extends JFrame {
 	
 	
 	private void chooseTemplatefile() {
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser("D:\\BFH\\Biometrie\\Semesterarbeit\\");
+//		JFileChooser chooser = new JFileChooser();
 		
 		File file = null;
 	    int returnVal = chooser.showOpenDialog(null);
