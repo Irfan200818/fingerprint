@@ -70,8 +70,8 @@ public class GUI extends JFrame {
 	
 	private void compareOnetoOne(Template t1, Template t2) {
 		Match matchResult = t1.compareTemplate(t2);
-		String match = "Nein";
-		if(matchResult.getMatch()) match = "Ja";
+		String match = "No";
+		if(matchResult.getMatch()) match = "Yes";
 		if(!this.onlyPositiv.isSelected() || matchResult.getMatch()) {
 			String[] row = {"Nr. " + t1.getTempNr(),
 					"" + t1.getnMinutiae(),

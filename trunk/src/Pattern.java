@@ -3,7 +3,6 @@ import java.util.List;
 import java.util.Map;
 
 
-
 public class Pattern {
 	
 	private int patternID;
@@ -84,20 +83,6 @@ public class Pattern {
 	}
 	
 	
-	public void prepare(){
-		if(this.designatedOrigin == null){
-			this.calculateOriginOrder();
-		}
-		this.calculateDeltaValues();
-	}
-	
-	
-	public void changeOriginAndPrepare(){
-		this.setNextDesignatedOrigin();
-		this.calculateDeltaValues();
-	}
-	
-	
 	private void calculateDeltaValues(){
 		double deltaDistance;
 		int deltaAngle;
@@ -110,14 +95,6 @@ public class Pattern {
 				this.deltaValues.put(minutia, new DeltaInformation(deltaDistance, deltaAngle, this.getMinutiaOrientation(deltaDistance, deltaY)));
 			}
 		}
-		
-		// TODO: delete print out section
-		if(this.deltaValues.size() > 0){
-//			for (Minutia key : this.deltaValues.keySet()) {
-//	            System.out.println("minutia index: " + key.getIndex() + "\tdelta distance: " + this.deltaValues.get(key).getDistance() + "\tdelta angle: " + this.deltaValues.get(key).getAngle());
-//	        }
-//			System.out.println("----------------\n");
-		}
 	}
 	
 	
@@ -129,13 +106,6 @@ public class Pattern {
 		for (Minutia key : originOrder.keySet()) {
 			this.origins.add(key);
 		}
-//		this.setNextDesignatedOrigin();
-
-		// TODO: delete print out section
-//		for (Minutia minutia : this.origins) {
-//			System.out.println("minutia index: " + minutia.getIndex());
-//		}
-//		System.out.println("\n");
 	}
 	
 	
@@ -159,20 +129,34 @@ public class Pattern {
 	}
 	
 	
-	public void setNextDesignatedOrigin(){
-//		int index = this.originIndex;
+	public void setNextOrigin(){
 		if(this.originIndex < this.origins.size()){
 			this.designatedOrigin = this.origins.get(this.originIndex);
-			this.originIndex++;
 			this.calculateDeltaValues();
-			
-			// TODO: delete print out section
-//			System.out.println("\n----------------\ndesignated origin (minutia) index: " + this.designatedOrigin.getIndex() + "\n");
+		}
+		this.originIndex++;
+	}
+	
+	
+	public boolean hasNextOrigin(){
+		if(this.originIndex <= this.minutiae.size()){
+			return true;
+		}
+		else{
+			return false;
 		}
 	}
 	
 	
-	public void resetNextDesignatedOriginCounter(){
+	public void resetNextOriginCounter(){
 		this.originIndex = 0;
+	}
+
+	
+	public void reInitPattern(){
+		this.originIndex = 0;
+		this.origins.clear();
+		this.minutiae.clear();
+		this.deltaValues.clear();
 	}
 }
