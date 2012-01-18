@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class TemplateComparator {
 	
-	// The tolerance of the delta distance value --> standard 6 (+6/-6) 8
+	// The tolerance of the delta distance value --> standard 9 (+9/-9)
 	private final double DISTANCE_TOLERANCE = 9;
-	// The tolerance of the delta angle value --> standard 2° (+2/-2) 5
+	// The tolerance of the delta angle value --> standard 4° (+4/-4)
 	private final int ANGLE_TOLERANCE = 4;
 	
 	private Template template;
