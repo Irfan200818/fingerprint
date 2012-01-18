@@ -3,240 +3,215 @@ import java.util.List;
 import java.util.Map;
 
 
-
 public class TemplateComparator {
 	
-	// The minimum recognition factor (for multiplying with the number of search minutiae) --> percent value, standard 70%
-//	private final double MIN_RECOGNIZED_MINUTIA_FACTOR_1 = 0.4;
-//	private final double MIN_RECOGNIZED_MINUTIA_FACTOR_2 = 0.8;
-	// The maximum origin change factor (for multiplying with the number of minutiae in the sample-template) --> percent value, standard 85% (less is faster but has a lesser recognition rate)
-//	private final double ORIGIN_CHANGE_COUNTER_FACTOR_1 = 1.0;
-//	private final double ORIGIN_CHANGE_COUNTER_FACTOR_2 = 0.4;
-	// The minutia frequency factor
-//	private final double MINUTIA_FREQUENCY_FACTOR = 0.6;
-	
 	// The tolerance of the delta distance value --> standard 6 (+6/-6) 8
-	private final double DISTANCE_TOLERANCE = 8;
+	private final double DISTANCE_TOLERANCE = 9;
 	// The tolerance of the delta angle value --> standard 2° (+2/-2) 5
-	private final int ANGLE_TOLERANCE = 5;
+	private final int ANGLE_TOLERANCE = 4;
 	
 	private Template template;
 	private Template sample;
 	private List<Pattern> searchPatterns;
-	private List<Pattern> samplePatterns;
-	private List<Pattern> designatedOriginsVerificationPatterns;
 	private List<Pattern> verificationPatterns;
-	private List<Minutia> foundSearchPatternDesigatedOrigins;
-	private List<Minutia> tempFoundDesigatedOrigins;
-	private int samplePatternIndex = 0;
+	private List<Minutia> foundOrigins;
+	private Pattern mainSamplePattern;
+	private Pattern originSearchPattern;
+	private Pattern currentSearchPattern;
+	private Pattern currentSamplePattern;
 	private int deltaValueMatchCounter = 0;
 	private int matchCounter = 0;
-	private Minutia searchPatternLastDesignatedOrigin = null;
-	private Minutia samplePatternLastDesignatedOrigin = null;
-	private Minutia samplePatternNextDesignatedOrigin = null;
 	
 	
 	public TemplateComparator(Template template, Template sample) {
 		this.template = template;
 		this.sample = sample;
 		this.searchPatterns = new ArrayList<Pattern>();
-		this.samplePatterns = new ArrayList<Pattern>();
-		this.designatedOriginsVerificationPatterns = new ArrayList<Pattern>();
-		this.verificationPatterns =  new ArrayList<Pattern>();
-		this.foundSearchPatternDesigatedOrigins = new ArrayList<Minutia>();
-		this.tempFoundDesigatedOrigins = new ArrayList<Minutia>();
+		this.verificationPatterns = new ArrayList<Pattern>();
+		this.foundOrigins = new ArrayList<Minutia>();
 		this.initSearchPatterns(this.template.getMinutiae());
 		this.initVerificationPattern(this.template.getMinutiae());
 		this.initSamplePattern(this.sample.getMinutiae());
 	}
 	
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public double compare(){
-		List<Double> foundPattern = new ArrayList<Double>();
-		List<Minutia> searchPatternMinutiae =  new ArrayList<Minutia>();
-		Pattern samplePattern = null;
+		List<List<Minutia>> allFoundMinutiae = new ArrayList<List<Minutia>>();
+		List<Minutia> searchPatternFoundMinutiae =  new ArrayList<Minutia>();
+		List<Minutia> tempFoundOrigins;
+		this.currentSearchPattern = this.originSearchPattern;
+		this.currentSamplePattern = this.mainSamplePattern;
 		double searchPatternScoreValue = 0;
-		double verificationPatternScoreValue = 0;
-		double totalMinutiae = 0;
+		int numberTemplateMinutiae = this.template.getMinutiae().size();
+		int numberSampleMinutiae = this.sample.getMinutiae().size();
+		int lastFoundOrigins = 0;
 		double foundMinutiae = 0;
-		double tempFoundMinutiae = 0;
+		double totalMinutiae = 0;
+		int originSearchRounds = 5;
 		
-		// Search each search pattern
-		for (Pattern searchPattern : this.searchPatterns) {
-			
-			
-			//TODO: delete print out section
-			System.out.println("\n\n######################### search pattern: " + searchPattern.getPatternID() + " #########################\n");
-			
-			
-			searchPatternMinutiae = searchPattern.getMinutiae();
-			// If search pattern contains NO minutiae
-			if(searchPatternMinutiae.isEmpty()){
-				foundPattern.add(tempFoundMinutiae);
-				this.getNextSamplePattern();
-				continue;
-			}
-			// If search pattern contains only 1 minutia
-			if(searchPatternMinutiae.size() == 1){
-				foundPattern.add((double)searchPatternMinutiae.size());
-				samplePattern = this.getNextSamplePattern();
-				this.comparePatterns(searchPattern, samplePattern);
-				continue;
-			}
-			// Set next sample pattern
-			samplePattern = this.getNextSamplePattern();
-			// Search matching minutiae
-			tempFoundMinutiae = this.comparePatterns(searchPattern, samplePattern);
-			// Count designated origin itself as found minutia
-			if(tempFoundMinutiae > 0){
-				tempFoundMinutiae += 1;
-			}
-			// Add number of matching minutiae to list
-			foundPattern.add(tempFoundMinutiae);
-			
-			
-			//TODO: delete print out section
-			System.out.println("found: " + (tempFoundMinutiae) + "/" + (double)searchPatternMinutiae.size());
-
-			
-			tempFoundMinutiae = 0;
-		}
-		totalMinutiae = this.template.getMinutiae().size();
-		for (int i=0; i<this.tempFoundDesigatedOrigins.size(); i++) {
-			if(tempFoundDesigatedOrigins.get(i) != null && foundPattern.get(i) != 0){
-				foundMinutiae += foundPattern.get(i);
-			}
-			else{
-				totalMinutiae -= foundPattern.get(i);
-			}
-		}
-		searchPatternScoreValue = foundMinutiae/totalMinutiae;
-		totalMinutiae = 0;
-		samplePattern = this.getNextSamplePattern();
-		this.samplePatternLastDesignatedOrigin = null;
-
 		
-		// Search each verification pattern
-		for (Pattern verificationPattern : this.verificationPatterns) {
-			
-			
-			//TODO: delete print out section
-			System.out.println("\n\n######################### verification pattern: " + verificationPattern.getPatternID() + " #########################\n");
-			
-			
-			// Search matching minutiae
-			foundMinutiae = this.comparePatterns(verificationPattern, samplePattern);
-			// Count designated origin itself as found minutia
-			if(foundMinutiae > 0){
-				foundMinutiae += 1;
+		// Search designated origins
+		for (int i=0; i<originSearchRounds; i++) {
+			for (Pattern searchPattern : this.searchPatterns) {
+				this.currentSearchPattern.addMinutia(searchPattern.getDesignatedOrigin());
 			}
-			// Calculate score value of found minutiae
-			totalMinutiae += verificationPattern.getMinutiae().size();
-			verificationPatternScoreValue += foundMinutiae/totalMinutiae;
-			
-			
-			//TODO: delete print out section
-			System.out.println("total found: " + foundMinutiae + "/" + totalMinutiae);
-			
-			
-			foundMinutiae = 0;
-			totalMinutiae = 0;
-		}
-		// Calculate and return total score value
-		return (searchPatternScoreValue + verificationPatternScoreValue)/2;
-	}
-	
-	
-	private int comparePatterns(Pattern searchPattern, Pattern samplePattern){
-		Map<Minutia, DeltaInformation> deltaValues = new ValueSortedMap<Minutia, DeltaInformation>();
-		List<Minutia> patternMatches = new ArrayList<Minutia>();
-		List<Minutia> tempPatternMatches = new ArrayList<Minutia>();
-		List<Minutia> tempDesignatedOrigin = new ArrayList<Minutia>();
-		boolean searchDesignatedOrigin = true;
-		double deltaDistance;
-		int foundMinutiae = 0;
-		int deltaAngle;
-		int originChangeCounter = 0;
-		int lastDeltaValueMatchCounter = 0;
-		int lastMatchCounter = 0;
-		int deltaY;
-		
-		// Set expected next designated origin
-		if(this.samplePatternLastDesignatedOrigin != null){
-			deltaY = this.searchPatternLastDesignatedOrigin.getPosition().getY() - searchPattern.getDesignatedOrigin().getPosition().getY();
-			deltaDistance = this.searchPatternLastDesignatedOrigin.calculateDeltaDistance(searchPattern.getDesignatedOrigin().getPosition());
-			deltaAngle = this.searchPatternLastDesignatedOrigin.calculateDeltaAngle(searchPattern.getDesignatedOrigin());
-			deltaValues.put(searchPattern.getDesignatedOrigin(), new DeltaInformation(deltaDistance, deltaAngle, searchPattern.getMinutiaOrientation(deltaDistance, deltaY)));
-			samplePattern.setDesignatedOrigin(this.samplePatternLastDesignatedOrigin);
-			tempDesignatedOrigin = this.compareMinutiaMaps(deltaValues, samplePattern.getDeltaValues());
-			this.deltaValueMatchCounter = 0;
-			this.matchCounter = 0;
-			if(!tempDesignatedOrigin.isEmpty()){
-				this.samplePatternNextDesignatedOrigin = tempDesignatedOrigin.get(0);
-				this.tempFoundDesigatedOrigins.add(this.samplePatternNextDesignatedOrigin);
-				samplePattern.setDesignatedOrigin(this.samplePatternNextDesignatedOrigin);
-				searchDesignatedOrigin = true;
-				
-				
-				//TODO: delete print out section
-				System.out.println("search    from: " + this.searchPatternLastDesignatedOrigin.getIndex() + " angle: " + this.searchPatternLastDesignatedOrigin.getAngle() + "  |  to: " + searchPattern.getDesignatedOrigin().getIndex() + " angle: " + searchPattern.getDesignatedOrigin().getAngle());
-				System.out.println("sample    from: " + this.samplePatternLastDesignatedOrigin.getIndex() + " angle: " + this.samplePatternLastDesignatedOrigin.getAngle() + "  |  to: " + samplePatternNextDesignatedOrigin.getIndex() + " angle: " + samplePatternNextDesignatedOrigin.getAngle() + "\n");
-				
-				
+			Pattern searchPattern = null;
+			for (int j=0; j<this.searchPatterns.size(); j++) {
+				searchPattern = this.searchPatterns.get(j);
+				if(j==0 && !searchPattern.getMinutiae().isEmpty()){
+					this.currentSearchPattern.setDesignatedOrigin(searchPattern.getDesignatedOrigin());
+					break;
+				}
+				else if(j==1 && !searchPattern.getMinutiae().isEmpty()){
+					this.currentSearchPattern.setDesignatedOrigin(searchPattern.getDesignatedOrigin());
+					break;
+				}
+				else if(j==2 && !searchPattern.getMinutiae().isEmpty()){
+					this.currentSearchPattern.setDesignatedOrigin(searchPattern.getDesignatedOrigin());
+					break;
+				}
+				else if(j==3 && !searchPattern.getMinutiae().isEmpty()){
+					this.currentSearchPattern.setDesignatedOrigin(searchPattern.getDesignatedOrigin());
+					break;
+				}
 			}
-			else{
-				searchDesignatedOrigin = false;
-				this.tempFoundDesigatedOrigins.add(null);
-			}
-		}
-		
-		// Search pattern if has found designated origin
-		if(searchDesignatedOrigin == true){
-			while(originChangeCounter <= samplePattern.getMinutiae().size()){
-				System.out.println("designated origin: " + samplePattern.getDesignatedOrigin().getPosition());
-				tempPatternMatches = this.compareMinutiaMaps(searchPattern.getDeltaValues(), samplePattern.getDeltaValues());
-				if((this.deltaValueMatchCounter > lastDeltaValueMatchCounter && this.deltaValueMatchCounter == this.matchCounter) || (this.matchCounter > lastMatchCounter && this.matchCounter > this.deltaValueMatchCounter)){
-					patternMatches = tempPatternMatches;
-					lastDeltaValueMatchCounter = this.deltaValueMatchCounter;
-					lastMatchCounter = this.matchCounter;
-					this.searchPatternLastDesignatedOrigin = searchPattern.getDesignatedOrigin();
-					this.samplePatternLastDesignatedOrigin = samplePattern.getDesignatedOrigin();
-	//				this.foundDesigatedOrigins.add(this.samplePatternLastDesignatedOrigin);
-					if(this.deltaValueMatchCounter+1 == searchPattern.getMinutiae().size()){
-						originChangeCounter = Integer.MAX_VALUE;
+			tempFoundOrigins = this.searchOrigins();
+			if(tempFoundOrigins != null && !tempFoundOrigins.isEmpty() && lastFoundOrigins < tempFoundOrigins.size()){
+				tempFoundOrigins = this.sortFoundOrigins(tempFoundOrigins);
+				for (Minutia minutia : tempFoundOrigins) {
+					if(minutia != null){
+						lastFoundOrigins++;
 					}
 				}
-				this.deltaValueMatchCounter = 0;
-				this.matchCounter = 0;
-				if(originChangeCounter != Integer.MAX_VALUE){
-					samplePattern.setNextDesignatedOrigin();
-					originChangeCounter++;
+				this.foundOrigins.clear();
+				this.foundOrigins.addAll(tempFoundOrigins);
+				if(lastFoundOrigins > this.currentSearchPattern.getMinutiae().size()/4*3){
+					break;
 				}
 			}
+			this.currentSearchPattern.reInitPattern();
+			if(tempFoundOrigins != null){
+				tempFoundOrigins.clear();
+			}
+			this.changeOriginsOfSearchPatterns();
 		}
 		
-		// Store last designated origins of search-pattern
-		if(!patternMatches.isEmpty()){
-			// Calculate search pattern score value
-			foundMinutiae += patternMatches.size();
-//			samplePattern.setDesignatedOrigin(this.samplePatternLastDesignatedOrigin);
-			if(tempFoundDesigatedOrigins.isEmpty()){
-				this.tempFoundDesigatedOrigins.add(this.samplePatternLastDesignatedOrigin);
+		if(!this.foundOrigins.isEmpty()){
+			// Search search patterns
+			for (int i=0; i<this.searchPatterns.size(); i++) {
+				if(this.foundOrigins.get(i) == null){
+					continue;
+				}
+				this.currentSearchPattern = this.searchPatterns.get(i);
+				this.currentSamplePattern.setDesignatedOrigin(this.foundOrigins.get(i));
+				searchPatternFoundMinutiae = this.searchPattern();
+				allFoundMinutiae.add(searchPatternFoundMinutiae);
 			}
-			
-			
-			//TODO: delete print out section
-			for (Minutia minutia : patternMatches) {
-				System.out.println("found: " + minutia.getIndex());
+			for (List<Minutia> list : allFoundMinutiae) {
+				if(list != null){
+					foundMinutiae += list.size();
+				}
 			}
-			System.out.println("\nfound minutiae: " + foundMinutiae + "\n");
+			if(numberTemplateMinutiae > numberSampleMinutiae){
+				totalMinutiae = numberSampleMinutiae;
+			}
+			else{
+				totalMinutiae = numberTemplateMinutiae;
+			}
+			totalMinutiae = (numberTemplateMinutiae+numberSampleMinutiae)/2;
+			searchPatternScoreValue = foundMinutiae/totalMinutiae;
+			
+			System.out.println("\ntemplate 1: " + this.template.getTempNr() + "   template 2: " + this.sample.getTempNr() + "   found minutiae: " + foundMinutiae + "/" + totalMinutiae + "\nscore value: " + searchPatternScoreValue*100);
+
+			return searchPatternScoreValue;
 			
 			
+			// Search verificatoin patterns
+	//		for (Pattern verificationPattern : this.verificationPatterns) {
+	//			this.currentSearchPattern = verificationPattern;
+	//			verificationPatternFoundMinutiae = this.searchOrigins();
+	//			totalMinutiae = verificationPattern.getMinutiae().size();
+	//			if(verificationPatternFoundMinutiae != null){
+	//				foundMinutiae = verificationPatternFoundMinutiae.size();
+	//			}
+	//			else{
+	//				foundMinutiae = 0;
+	//			}
+	//			verificationPatternScoreValue += foundMinutiae/(double)totalMinutiae;
+	//		}
+	//		verificationPatternScoreValue /= (double)this.verificationPatterns.size();
+	//		return (searchPatternScoreValue+verificationPatternScoreValue)/2;
 		}
-		return foundMinutiae;
+		else{
+			return 0;
+		}
 	}
 	
 	
+	/**
+	 * 
+	 * @param foundOrigins
+	 * @return
+	 */
+	private List<Minutia> sortFoundOrigins(List<Minutia> foundOrigins) {
+		Map<Minutia, DeltaInformation> searchPatternMap = new ValueSortedMap<Minutia, DeltaInformation>();
+		Map<Minutia, DeltaInformation> samplePatternMap = new ValueSortedMap<Minutia, DeltaInformation>();
+		List<Minutia> tempDesignatedOrigin = new ArrayList<Minutia>();
+		List<Minutia> sortedOrigins = new ArrayList<Minutia>();
+		Minutia searchOrigin = this.searchPatterns.get(0).getDesignatedOrigin();
+		Minutia nextSearchOrigin;
+		Minutia sampleOrigin = foundOrigins.get(0);
+		Minutia nextSampleOrigin;
+		double searchDeltaDistance;
+		double sampleDeltaDistance;
+		int searchDeltaAngle;
+		int sampleDeltaAngle;
+		int searchDeltaY;
+		int sampleDeltaY;
+		
+		sortedOrigins.add(sampleOrigin);
+		
+		for (int i=1; i<this.searchPatterns.size(); i++) {
+			nextSearchOrigin = this.searchPatterns.get(i).getDesignatedOrigin();
+			// Create search map
+			searchDeltaY = searchOrigin.getPosition().getY() - nextSearchOrigin.getPosition().getY();
+			searchDeltaDistance = searchOrigin.calculateDeltaDistance(nextSearchOrigin.getPosition());
+			searchDeltaAngle = searchOrigin.calculateDeltaAngle(nextSearchOrigin);
+			searchPatternMap.put(nextSearchOrigin, new DeltaInformation(searchDeltaDistance, searchDeltaAngle, this.currentSearchPattern.getMinutiaOrientation(searchDeltaDistance, searchDeltaY)));
+			for (int j=1; j<foundOrigins.size(); j++) {
+				nextSampleOrigin = foundOrigins.get(j);
+				// Create sample map
+				sampleDeltaY = sampleOrigin.getPosition().getY() - nextSampleOrigin.getPosition().getY();
+				sampleDeltaDistance = sampleOrigin.calculateDeltaDistance(nextSampleOrigin.getPosition());
+				sampleDeltaAngle = sampleOrigin.calculateDeltaAngle(nextSampleOrigin);
+				samplePatternMap.put(nextSampleOrigin, new DeltaInformation(sampleDeltaDistance, sampleDeltaAngle, this.currentSamplePattern.getMinutiaOrientation(sampleDeltaDistance, sampleDeltaY)));
+				// Compare maps
+				tempDesignatedOrigin = this.compareMinutiaMaps(searchPatternMap, samplePatternMap);
+				samplePatternMap.clear();
+				if(!tempDesignatedOrigin.isEmpty()){
+					sortedOrigins.addAll(tempDesignatedOrigin);
+					break;
+				}
+			}
+			if(tempDesignatedOrigin.isEmpty()){
+				sortedOrigins.add(null);
+			}
+			searchPatternMap.clear();
+		}
+		return sortedOrigins;
+	}
+
+
+	/**
+	 * 
+	 * @param searchPatternMap
+	 * @param samplePatternMap
+	 * @return
+	 */
 	private List<Minutia> compareMinutiaMaps(Map<Minutia, DeltaInformation> searchPatternMap, Map<Minutia, DeltaInformation> samplePatternMap) {
 		List<Minutia> finalMatches = new ArrayList<Minutia>();
 		List<Minutia> tempMatches = new ArrayList<Minutia>();
@@ -263,9 +238,6 @@ public class TemplateComparator {
 						tempMatches.clear();
 						this.deltaValueMatchCounter++;
 						this.matchCounter++;
-						
-						//TODO: delete print out section
-//						System.out.println("found: " + sampleKey.getIndex());
 					}
 					break;
 				}
@@ -279,7 +251,6 @@ public class TemplateComparator {
 					continue;
 				}
 				else if(searchPatternDeltaInformation.getOrientation() != samplePatternDeltaInformation.getOrientation()){
-//				else if(Math.abs(searchPatternDeltaInformation.getOrientation() - samplePatternDeltaInformation.getOrientation()) > 0.2){
 					continue;
 				}
 				else{
@@ -304,9 +275,6 @@ public class TemplateComparator {
 					if(!finalMatches.contains(minutia)){
 						finalMatches.add(minutia);
 						this.matchCounter++;
-						
-						//TODO: delete print out section
-//						System.out.println("found: " + minutia.getIndex());
 					}
 				}
 				tempMatches.clear();
@@ -314,22 +282,115 @@ public class TemplateComparator {
 				lowestDeltaAngle = 9999;
 			}
 		}
-		
-		
-		//TODO: delete print out section
-//		System.out.println("\n");
-//		for (Minutia minutia : finalMatches) {
-//			System.out.println(minutia.getPosition());
-//		}
-//		System.out.println("\n");
-		
-		
 		return finalMatches;
 	}
 	
 	
+	/**
+	 * 
+	 * @param searchPattern
+	 * @param samplePattern
+	 * @return
+	 */
+	private List<Minutia> searchPattern(){
+		List<Minutia> foundMinutiae =  new ArrayList<Minutia>();
+		List<Minutia> tempFoundMinutiae =  new ArrayList<Minutia>();
+		Minutia currentSampleOrigin;
+		int lastDeltaValueMatchCounter = 0;
+		int lastMatchCounter = 0;
+		
+		while(this.currentSamplePattern.hasNextOrigin()){
+			currentSampleOrigin = this.currentSamplePattern.getDesignatedOrigin();
+			if(this.foundOrigins.contains(currentSampleOrigin)){
+				if(this.currentSearchPattern.getMinutiae().size() == 1){
+					foundMinutiae.clear();
+					foundMinutiae.add(currentSampleOrigin);
+					break;
+				}
+				tempFoundMinutiae = this.compareMinutiaMaps(this.currentSearchPattern.getDeltaValues(), this.currentSamplePattern.getDeltaValues());
+				if((this.deltaValueMatchCounter > lastDeltaValueMatchCounter && this.deltaValueMatchCounter == this.matchCounter) || (this.matchCounter > lastMatchCounter && this.matchCounter > this.deltaValueMatchCounter)){
+					foundMinutiae.clear();
+					foundMinutiae.add(currentSampleOrigin);
+					foundMinutiae.addAll(tempFoundMinutiae);
+					lastDeltaValueMatchCounter = this.deltaValueMatchCounter;
+					lastMatchCounter = this.matchCounter;
+					if(this.deltaValueMatchCounter == this.currentSearchPattern.getMinutiae().size()-1){
+						this.deltaValueMatchCounter = 0;
+						this.matchCounter = 0;
+						break;
+					}
+				}
+			}
+			this.deltaValueMatchCounter = 0;
+			this.matchCounter = 0;
+			this.currentSamplePattern.setNextOrigin();
+		}
+		this.currentSamplePattern.resetNextOriginCounter();
+		this.currentSamplePattern.setNextOrigin();
+		if(!foundMinutiae.isEmpty()){
+			return foundMinutiae;
+		}
+		else{
+			return null;
+		}
+	}
 	
 	
+	/**
+	 * 
+	 * @return
+	 */
+	private List<Minutia> searchOrigins(){
+		List<Minutia> foundMinutiae =  new ArrayList<Minutia>();
+		List<Minutia> tempFoundMinutiae =  new ArrayList<Minutia>();
+		int lastDeltaValueMatchCounter = 0;
+		int lastMatchCounter = 0;
+		Minutia currentSampleOrigin;
+		
+		while(this.currentSamplePattern.hasNextOrigin()){
+			currentSampleOrigin = this.currentSamplePattern.getDesignatedOrigin();
+			tempFoundMinutiae = this.compareMinutiaMaps(this.currentSearchPattern.getDeltaValues(), this.currentSamplePattern.getDeltaValues());
+			if((this.deltaValueMatchCounter > lastDeltaValueMatchCounter && this.deltaValueMatchCounter == this.matchCounter) || (this.matchCounter > lastMatchCounter && this.matchCounter > this.deltaValueMatchCounter)){
+				foundMinutiae.clear();
+				foundMinutiae.add(currentSampleOrigin);
+				foundMinutiae.addAll(tempFoundMinutiae);
+				lastDeltaValueMatchCounter = this.deltaValueMatchCounter;
+				lastMatchCounter = this.matchCounter;
+				if(this.deltaValueMatchCounter == this.currentSearchPattern.getMinutiae().size()-1){
+					this.deltaValueMatchCounter = 0;
+					this.matchCounter = 0;
+					break;
+				}
+			}
+			this.deltaValueMatchCounter = 0;
+			this.matchCounter = 0;
+				this.currentSamplePattern.setNextOrigin();
+		}
+		this.currentSamplePattern.resetNextOriginCounter();
+		this.currentSamplePattern.setNextOrigin();
+		if(!foundMinutiae.isEmpty()){
+			return foundMinutiae;
+		}
+		else{
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	private void changeOriginsOfSearchPatterns() {
+		for (Pattern searchPattern : this.searchPatterns) {
+			searchPattern.setNextOrigin();
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param minutiae
+	 */
 	private void initSearchPatterns(List<Minutia> minutiae) {
 		int minutiaX = 0;
 		int minutiaY = 0;
@@ -356,45 +417,46 @@ public class TemplateComparator {
 				maxY = minutiaY;
 			}
 		}
-		
-		customWidth = (maxX-minX)/2;
+		customWidth = (maxX-minX);
 		if((customWidth % 2) != 0){
 			customWidth += 1;
 		}
-		customHeight = (maxY-minY)/2;
+		customHeight = (maxY-minY);
 		if((customHeight % 2) != 0){
 			customHeight += 1;
 		}
-		
-		this.searchPatterns.add(new Pattern(1, new Position(customWidth/3*2+minX, customHeight/4*3+minY), 0, 0, 0, 0));
-		this.searchPatterns.add(new Pattern(2, new Position(customWidth/3*4+minX, customHeight/4*3+minY), 0, 0, 0, 0));
-		this.searchPatterns.add(new Pattern(3, new Position(customWidth/3*4+minX, customHeight/4*5+minY), 0, 0, 0, 0));
-		this.searchPatterns.add(new Pattern(4, new Position(customWidth/3*2+minX, customHeight/4*5+minY), 0, 0, 0, 0));
-		
+		this.originSearchPattern = new Pattern(0, new Position(customWidth/2+minX, customHeight/2+minY), customWidth, customHeight, minX, minY);
+		this.searchPatterns.add(new Pattern(1, new Position((customWidth/2)/3*2+minX, (customHeight/2)/6*5+minY), customWidth, customHeight, minX, minY));
+		this.searchPatterns.add(new Pattern(2, new Position((customWidth/2)/3*4+minX, (customHeight/2)/6*5+minY), customWidth, customHeight, minX, minY));
+		this.searchPatterns.add(new Pattern(3, new Position((customWidth/2)/3*4+minX, (customHeight/2)/6*7+minY), customWidth, customHeight, minX, minY));
+		this.searchPatterns.add(new Pattern(4, new Position((customWidth/2)/3*2+minX, (customHeight/2)/6*7+minY), customWidth, customHeight, minX, minY));
 		for(Minutia minutia : minutiae){
 			minutiaX = minutia.getPosition().getX();
 			minutiaY = minutia.getPosition().getY();
-			if(minutiaX < customWidth+minX && minutiaY < customHeight+minY){
+			if(minutiaX < customWidth/2+minX && minutiaY < customHeight/2+minY){
 				this.searchPatterns.get(0).addMinutia(minutia);
 			}
-			else if(minutiaX >= customWidth+minX && minutiaY < customHeight+minY){
+			else if(minutiaX >= customWidth/2+minX && minutiaY < customHeight/2+minY){
 				this.searchPatterns.get(1).addMinutia(minutia);
 			}
-			else if(minutiaX >= customWidth+minX && minutiaY >= customHeight+minY){
+			else if(minutiaX >= customWidth/2+minX && minutiaY >= customHeight/2+minY){
 				this.searchPatterns.get(2).addMinutia(minutia);
 			}
-			else if(minutiaX < customWidth+minX && minutiaY >= customHeight+minY){
+			else if(minutiaX < customWidth/2+minX && minutiaY >= customHeight/2+minY){
 				this.searchPatterns.get(3).addMinutia(minutia);
 			}
 		}
-		
 		for (Pattern searchPattern : this.searchPatterns) {
 			searchPattern.calculateOriginOrder();
-			searchPattern.setNextDesignatedOrigin();
+			searchPattern.setNextOrigin();
 		}
 	}
 	
 	
+	/**
+	 * 
+	 * @param minutiae
+	 */
 	private void initVerificationPattern(List<Minutia> minutiae) {
 		int minutiaX;
 		int minutiaY;
@@ -423,7 +485,6 @@ public class TemplateComparator {
 				maxY = minutiaY;
 			}
 		}
-		
 		customWidth = (maxX-minX);
 		if((customWidth % 2) != 0){
 			customWidth += 1;
@@ -432,46 +493,32 @@ public class TemplateComparator {
 		if((customHeight % 2) != 0){
 			customHeight += 1;
 		}
-		
 		axisPositionX = customWidth/2;
 		axisPositionY = customHeight/2;
 		Position axisPosition = new Position(axisPositionX+minX, axisPositionY+minY);
-		
-//		Pattern verifyPatternDesignatedOrigins = new Pattern(1, new Position(this.template.getWidth()/2, this.template.getHeight()/2));
-		Pattern verifyPatternAxis = new Pattern(1, axisPosition, 0, 0, 0, 0);
-//		Pattern verifyPatternYAxis = new Pattern(2, axisPosition);
-		
-//		for (Pattern searchPattern : this.searchPatterns) {
-//			verifyPatternDesignatedOrigins.addMinutia(searchPattern.getDesignatedOrigin());
-//		}
-		
+		Pattern verifyPatternAxis = new Pattern(1, axisPosition, customWidth, customHeight, minX, minY);
 		for(Minutia minutia : minutiae){
 			minutiaX = minutia.getPosition().getX()-minX;
 			minutiaY = minutia.getPosition().getY()-minY;
 			if(Math.abs(axisPositionY-minutiaY) <= 16 || Math.abs(axisPositionX-minutiaX) <= 16){
 				verifyPatternAxis.addMinutia(minutia);
 			}
-//			if(Math.abs(axisPositionX-minutiaX) <= 16){
-//				verifyPatternYAxis.addMinutia(minutia);
-//			}
 		}
-		
-//		this.verificationPatterns.add(verifyPatternDesignatedOrigins);
 		this.verificationPatterns.add(verifyPatternAxis);
-//		this.verificationPatterns.add(verifyPatternYAxis);
-		
-		
-		
 		for (Pattern verificationPattern : this.verificationPatterns) {
 			verificationPattern.calculateOriginOrder();
-			verificationPattern.setNextDesignatedOrigin();
+			verificationPattern.setNextOrigin();
 		}
 	}
 	
 	
+	/**
+	 * 
+	 * @param minutiae
+	 */
 	private void initSamplePattern(List<Minutia> minutiae) {
-		int minutiaX;
-		int minutiaY;
+		int minutiaX = 0;
+		int minutiaY = 0;
 		int minX = 999;
 		int maxX = 0;
 		int minY = 999;
@@ -495,7 +542,6 @@ public class TemplateComparator {
 				maxY = minutiaY;
 			}
 		}
-		
 		customWidth = (maxX-minX);
 		if((customWidth % 2) != 0){
 			customWidth += 1;
@@ -504,41 +550,11 @@ public class TemplateComparator {
 		if((customHeight % 2) != 0){
 			customHeight += 1;
 		}
-		
-		this.samplePatterns.add(new Pattern(1, new Position((customWidth/5*4)/2+minX, (customHeight/5*4)/2+minY), 0, 0, 0, 0));
-		this.samplePatterns.add(new Pattern(2, new Position((customWidth/5*4)/2+customWidth/5+minX, (customHeight/5*4)/2+minY), 0, 0, 0, 0));
-		this.samplePatterns.add(new Pattern(3, new Position((customWidth/5*4)/2+customWidth/5+minX, (customHeight/5*4)/2+customHeight/5+minY), 0, 0, 0, 0));
-		this.samplePatterns.add(new Pattern(4, new Position((customWidth/5*4)/2+minX, (customHeight/5*4)/2+customHeight/5+minY), 0, 0, 0, 0));
-		this.samplePatterns.add(new Pattern(5, new Position(customWidth/2+minX, customHeight/2+minY), 0, 0, 0, 0));
-
+		this.mainSamplePattern = new Pattern(0, new Position(customWidth/2+minX, customHeight/2+minY), customWidth, customHeight, minX, minY);
 		for(Minutia minutia : minutiae){
-			minutiaX = minutia.getPosition().getX();
-			minutiaY = minutia.getPosition().getY();
-			if(minutiaX < customWidth/5*4+minX && minutiaY < customHeight/5*4+minY){
-				this.samplePatterns.get(0).addMinutia(minutia);
-			}
-			if(minutiaX >= customWidth/5+minX && minutiaY < customHeight/5*4+minY){
-				this.samplePatterns.get(1).addMinutia(minutia);
-			}
-			if(minutiaX >= customWidth/5+minX && minutiaY >= customHeight/5+minY){
-				this.samplePatterns.get(2).addMinutia(minutia);
-			}
-			if(minutiaX < customWidth/5*4+minX && minutiaY >= customHeight/5+minY){
-				this.samplePatterns.get(3).addMinutia(minutia);
-			}
-			this.samplePatterns.get(4).addMinutia(minutia);
+			this.mainSamplePattern.addMinutia(minutia);
 		}
-		
-		for (Pattern samplePattern : this.samplePatterns) {
-			samplePattern.calculateOriginOrder();
-			samplePattern.setNextDesignatedOrigin();
-		}
-	}
-	
-	
-	private Pattern getNextSamplePattern(){
-		Pattern samplePattern = this.samplePatterns.get(this.samplePatternIndex);
-		this.samplePatternIndex++;
-		return samplePattern;
+		this.mainSamplePattern.calculateOriginOrder();
+		this.mainSamplePattern.setNextOrigin();
 	}
 }

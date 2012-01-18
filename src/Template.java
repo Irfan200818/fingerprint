@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Template {
 	
-	private final double MIN_RECOGNITION_SCORE_VALUE = 0.65;
+	private final double MIN_RECOGNITION_SCORE_VALUE = 0.55;
 	private int tempNr;
 	private int width, height;
 	private int xRes, yRes;
@@ -29,7 +29,6 @@ public class Template {
 		
 		TemplateComparator comparator = new TemplateComparator(this, t2);
 		double scoreValue = comparator.compare();
-		System.out.println("\n" + scoreValue);
 		
 		if(scoreValue >= MIN_RECOGNITION_SCORE_VALUE){
 			match = true;
