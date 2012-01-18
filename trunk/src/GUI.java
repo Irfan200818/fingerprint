@@ -89,10 +89,10 @@ public class GUI extends JFrame {
 	}
 	
 	private void compareAlltoAll() {
-		String[] emptyRow = {};
+//		String[] emptyRow = {};
 		for(Template t1 : this.templates){
 			this.compareOnetoAll(t1);
-			this.addTableRow(emptyRow);
+//			this.addTableRow(emptyRow);
 		}
 	}
 	
