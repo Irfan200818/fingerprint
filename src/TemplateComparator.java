@@ -13,7 +13,6 @@ public class TemplateComparator {
 	private Template template;
 	private Template sample;
 	private List<Pattern> searchPatterns;
-	private List<Pattern> verificationPatterns;
 	private List<Minutia> foundOrigins;
 	private Pattern mainSamplePattern;
 	private Pattern originSearchPattern;
@@ -27,10 +26,8 @@ public class TemplateComparator {
 		this.template = template;
 		this.sample = sample;
 		this.searchPatterns = new ArrayList<Pattern>();
-		this.verificationPatterns = new ArrayList<Pattern>();
 		this.foundOrigins = new ArrayList<Minutia>();
 		this.initSearchPatterns(this.template.getMinutiae());
-		this.initVerificationPattern(this.template.getMinutiae());
 		this.initSamplePattern(this.sample.getMinutiae());
 	}
 	
@@ -128,23 +125,6 @@ public class TemplateComparator {
 			System.out.println("\ntemplate 1: " + this.template.getTempNr() + "   template 2: " + this.sample.getTempNr() + "   found minutiae: " + foundMinutiae + "/" + totalMinutiae + "\nscore value: " + searchPatternScoreValue*100);
 
 			return searchPatternScoreValue;
-			
-			
-			// Search verificatoin patterns
-	//		for (Pattern verificationPattern : this.verificationPatterns) {
-	//			this.currentSearchPattern = verificationPattern;
-	//			verificationPatternFoundMinutiae = this.searchOrigins();
-	//			totalMinutiae = verificationPattern.getMinutiae().size();
-	//			if(verificationPatternFoundMinutiae != null){
-	//				foundMinutiae = verificationPatternFoundMinutiae.size();
-	//			}
-	//			else{
-	//				foundMinutiae = 0;
-	//			}
-	//			verificationPatternScoreValue += foundMinutiae/(double)totalMinutiae;
-	//		}
-	//		verificationPatternScoreValue /= (double)this.verificationPatterns.size();
-	//		return (searchPatternScoreValue+verificationPatternScoreValue)/2;
 		}
 		else{
 			return 0;
@@ -449,65 +429,6 @@ public class TemplateComparator {
 		for (Pattern searchPattern : this.searchPatterns) {
 			searchPattern.calculateOriginOrder();
 			searchPattern.setNextOrigin();
-		}
-	}
-	
-	
-	/**
-	 * 
-	 * @param minutiae
-	 */
-	private void initVerificationPattern(List<Minutia> minutiae) {
-		int minutiaX;
-		int minutiaY;
-		int axisPositionX;
-		int axisPositionY;
-		int minX = 999;
-		int maxX = 0;
-		int minY = 999;
-		int maxY = 0;
-		int customWidth = 0;
-		int customHeight = 0;
-		
-		for (Minutia minutia : minutiae) {
-			minutiaX = minutia.getPosition().getX();
-			minutiaY = minutia.getPosition().getY();
-			if(minutiaX < minX){
-				minX = minutiaX;
-			}
-			else if(minutiaX > maxX){
-				maxX = minutiaX;
-			}
-			if(minutiaY < minY){
-				minY = minutiaY;
-			}
-			else if(minutiaY > maxY){
-				maxY = minutiaY;
-			}
-		}
-		customWidth = (maxX-minX);
-		if((customWidth % 2) != 0){
-			customWidth += 1;
-		}
-		customHeight = (maxY-minY);
-		if((customHeight % 2) != 0){
-			customHeight += 1;
-		}
-		axisPositionX = customWidth/2;
-		axisPositionY = customHeight/2;
-		Position axisPosition = new Position(axisPositionX+minX, axisPositionY+minY);
-		Pattern verifyPatternAxis = new Pattern(1, axisPosition, customWidth, customHeight, minX, minY);
-		for(Minutia minutia : minutiae){
-			minutiaX = minutia.getPosition().getX()-minX;
-			minutiaY = minutia.getPosition().getY()-minY;
-			if(Math.abs(axisPositionY-minutiaY) <= 16 || Math.abs(axisPositionX-minutiaX) <= 16){
-				verifyPatternAxis.addMinutia(minutia);
-			}
-		}
-		this.verificationPatterns.add(verifyPatternAxis);
-		for (Pattern verificationPattern : this.verificationPatterns) {
-			verificationPattern.calculateOriginOrder();
-			verificationPattern.setNextOrigin();
 		}
 	}
 	
