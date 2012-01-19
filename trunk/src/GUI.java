@@ -29,7 +29,7 @@ public class GUI extends JFrame {
 	
 	public GUI() {
 		this.setTitle("Fingerprint-Matcher");
-		this.setSize(1000, 800);
+		this.setSize(1000, 720);
 		this.setResizable(false);
 		this.setVisible(true);
 		
@@ -210,7 +210,7 @@ public class GUI extends JFrame {
 		
 		JScrollPane jspOutput = new JScrollPane(this.jtOutput);
 		
-		jspOutput.setPreferredSize(new Dimension(950, 300));
+		jspOutput.setPreferredSize(new Dimension(950, 250));
 		jspOutput.setBorder(BorderFactory.createEtchedBorder());
 		
 		return jspOutput;
@@ -229,8 +229,7 @@ public class GUI extends JFrame {
 	
 	
 	private void chooseTemplatefile() {
-		JFileChooser chooser = new JFileChooser("D:\\BFH\\Biometrie\\Semesterarbeit\\");
-//		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser();
 		
 		File file = null;
 	    int returnVal = chooser.showOpenDialog(null);
@@ -243,35 +242,5 @@ public class GUI extends JFrame {
 		}
 		this.controller.readFile(file);
 	}
-	
-	
-//	private void createPicture(Template t, Graphics2D g) {
-////if(this.image == null || this.image.getWidth() != width || this.image.getHeight() != height)
-//Graphics2D g2 = (Graphics2D)this.getGraphics();
-//g2.setBackground(Color.white);
-//g2.clearRect(0, 0, 288, 384);
-//ArrayList<Minutia> minutias = t.getMinutias();
-//int type;
-//for(Minutia m : minutias) {
-//	type = m.getMinType();
-//	switch(type) {
-//		case(0): g2.setColor(Color.GREEN); break;
-//		case(1): g2.setColor(Color.BLUE); break;
-//		case(2): g2.setColor(Color.RED); break;
-//	}
-//	g2.drawOval(m.getxCoord()-2, m.getyCoord()-2, 4, 4);
-//}
-//}
-	
-    
-//  protected static ImageIcon createImageIcon(String path) {
-//      java.net.URL imgURL = ComboBoxDemo.class.getResource(path);
-//      if (imgURL != null) {
-//          return new ImageIcon(imgURL);
-//      } else {
-//          System.err.println("Couldn't find file: " + path);
-//          return null;
-//      }
-//  }
 
 }
