@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Template {
 	
-	private final double MIN_RECOGNITION_SCORE_VALUE = 0.55;
+	private final double MIN_RECOGNITION_SCORE_VALUE = 0.54;
 	private int tempNr;
 	private int width, height;
 	private int xRes, yRes;
